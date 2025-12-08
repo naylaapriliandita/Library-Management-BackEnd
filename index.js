@@ -1,6 +1,7 @@
 import 'dotenv/config'; 
 import express from 'express';
 import authRoutes from './src/routes/auth.routes.js';
+import bookRoutes from './src/routes/book.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,8 +12,9 @@ app.use(express.json()); // Mengizinkan Express membaca body JSON
 // Routing 
 // Endpoint Auth (Register & Login)
 app.use('/api/auth', authRoutes);
+app.use('/api/books', bookRoutes);
 
-// Endpoint utama (Contoh)
+// Endpoint utama
 app.get('/', (req, res) => {
     res.status(200).json({ 
         message: 'Welcome to Library System REST API!',
