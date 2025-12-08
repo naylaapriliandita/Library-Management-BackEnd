@@ -1,0 +1,91 @@
+generator client {
+    provider = "prisma-client-js"
+}
+datasource db {
+    provider = "sqlite"
+}
+
+enum Role {
+    USER
+    ADMIN
+}
+
+enum BorrowStatus {
+    BORROWED
+    RETURNED
+    OVERDUE
+}
+
+// 1. User Model (PENGGUNA)
+model User {
+    id            Int            @id @default(autoincrement())
+    email         String         @unique
+    password      String         
+    name          String
+    role          Role           @default(USER)
+    
+    // Relasi: User memiliki banyak BorrowRecord (1-to-N)
+    borrowRecords BorrowRecord[]
+    
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
+}
+
+// 2. Author Model (PENULIS)
+model Author {
+    id            Int      @id @default(autoincrement())
+    name          String   @unique
+    
+    // Relasi: Author memiliki banyak Book (1-to-N)
+    books         Book[]
+    
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+}
+
+// 3. Book Model (BUKU) 
+model Book {
+    id            Int      @id @default(autoincrement())
+    title         String
+    isbn          String   @unique
+    stock         Int      @default(1)
+    isAvailable   Boolean  @default(true) // Status ketersediaan
+
+    // Relasi: Book milik satu Author (N-to-1)
+    authorId      Int
+    author        Author   @relation(fields: [authorId], references: [id])
+    
+    // Relasi: Book memiliki banyak BorrowRecord (1-to-N)
+    borrowRecords BorrowRecord[]
+    
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+    
+    @@index([authorId])
+    @@index([title, isbn])
+}
+
+// 4. BorrowRecord Model (CATATAN PEMINJAMAN) 
+// Junction table untuk merekam riwayat peminjaman
+model BorrowRecord {
+    id            Int            @id @default(autoincrement())
+    borrowDate    DateTime       @default(now())
+    dueDate       DateTime       // Tanggal harus dikembalikan
+    returnDate    DateTime?      // Tanggal aktual dikembalikan
+    status        BorrowStatus   @default(BORROWED)
+    
+    // Relasi: Record milik satu User
+    userId        Int
+    user          User           @relation(fields: [userId], references: [id])
+    
+    // Relasi: Record terkait satu Book
+    bookId        Int
+    book          Book           @relation(fields: [bookId], references: [id])
+    
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+    
+    // Indeks untuk query dan validasi cepat
+    @@unique([userId, bookId, status])
+    @@index([userId, bookId, status])
+}
