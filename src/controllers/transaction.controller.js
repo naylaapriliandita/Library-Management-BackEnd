@@ -63,12 +63,29 @@ export const returnBook = async (req, res, next) => {
 // Lihat semua transaksi user
 export const getTransactions = async (req, res, next) => {
     try {
-        const userId = req.user.userId;
+        let { page = 1, limit = 10, userId, status } = req.query;
+        page = Number(page);
+        limit = Math.min(Number(limit), 50);
+
+        const where = {};
+        if (status) where.status = status;
+        if (userId) where.userId = Number(userId);
+
+        const totalRecords = await prisma.transaction.count({ where });
+        const totalPages = Math.ceil(totalRecords / limit);
+
         const transactions = await prisma.transaction.findMany({
-            where: { userId },
-            include: { book: true },
+            where,
+            skip: (page - 1) * limit,
+            take: limit,
+            include: { book: true, user: true },
         });
-        res.json({ success: true, data: transactions });
+
+        res.json({
+            success: true,
+            data: transactions,
+            pagination: { totalRecords, totalPages, currentPage: page },
+        });
     } catch (err) {
         next(err);
     }

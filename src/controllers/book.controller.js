@@ -16,19 +16,41 @@ export const createBook = async (req, res, next) => {
             success: true,
             message: "Buku berhasil ditambahkan",
             data: book,
-            });
-        } catch (err) {
-            next(err);
-        }
-    };
+        });
+    } catch (err) {
+        next(err);
+    }
+};
 
-    export const getBooks = async (req, res, next) => {
+export const getBooks = async (req, res, next) => {
     try {
-        const books = await prisma.book.findMany();
+        let { page = 1, limit = 10, search = "", sortBy = "createdAt", order = "asc" } = req.query;
+        page = Number(page);
+        limit = Math.min(Number(limit), 50); // max 50
 
-            res.json({
+        const where = search
+            ? {
+                OR: [
+                        { title: { contains: search, mode: "insensitive" } },
+                        { author: { name: { contains: search, mode: "insensitive" } } },
+                    ],
+                }
+            : {};
+
+        const totalRecords = await prisma.book.count({ where });
+        const totalPages = Math.ceil(totalRecords / limit);
+        const books = await prisma.book.findMany({
+            where,
+            orderBy: { [sortBy]: order },
+            skip: (page - 1) * limit,
+            take: limit,
+            include: { author: true },
+        });
+
+        res.json({
             success: true,
             data: books,
+            pagination: { totalRecords, totalPages, currentPage: page },
         });
     } catch (err) {
         next(err);
