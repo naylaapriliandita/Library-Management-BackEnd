@@ -73,3 +73,10 @@ export const login = async (req, res, next) => {
         next(err);
     }
 };
+
+export const getMe = async (req, res) => {
+    res.json({
+        success: true,
+        data: req.user,
+    });
+};
