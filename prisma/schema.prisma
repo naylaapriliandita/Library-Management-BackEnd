@@ -15,6 +15,7 @@ model User {
   role      String   @default("USER")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  transactions Transaction[] 
 }
 
 model Book {
@@ -25,6 +26,7 @@ model Book {
   stock     Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  transactions Transaction[]
 }
 
 model Author {
@@ -32,6 +34,21 @@ model Author {
   name      String
   bio       String?
   books     Book[]  // One-to-Many: 1 Author punya banyak Books
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Transaction {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  bookId    Int
+  status    String   @default("BORROWED") // BORROWED, RETURNED
+  borrowedAt DateTime @default(now())
+  returnedAt DateTime?
+  
+  user      User     @relation(fields: [userId], references: [id])
+  book      Book     @relation(fields: [bookId], references: [id])
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
