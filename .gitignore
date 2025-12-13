@@ -1,24 +1,5 @@
-# 1. DEPENDENCIES
-# Folder ini berisi semua library yang diinstal (node_modules)
-# Ini terlalu besar dan akan diinstal ulang oleh orang lain menggunakan package.json
-/node_modules
-
-# 2. ENVIRONMENT
-# File ini berisi secrets seperti password database dan JWT_SECRET.
-# JANGAN PERNAH di-commit.
+node_modules/
 .env
-
-# 3. DATABASE FILES
-# File database development lokal (SQLite)
-# File ini akan dibuat ulang saat menjalankan migrasi.
-/prisma/dev.db
-
-# 4. PRISMA ARTIFACTS
-# Prisma Client (hasil generate) yang dibuat di node_modules (opsional, tapi aman dimasukkan)
-# /node_modules/.prisma
-
-# 5. LOGS & TEMPORARY FILES
-# File log atau cache yang dibuat saat runtime.
-npm-debug.log*
-.DS_Store # Untuk pengguna Mac
-*.log
+dev.db
+.DS_Store
+Thumbs.db
