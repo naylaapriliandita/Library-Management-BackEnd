@@ -6,7 +6,7 @@ import { validateBody } from "../middleware/validate.middleware.js";
 
 const router = Router();
 
-// GET all users - only ADMIN
+// GET all users - ADMIN Only
 router.get(
     "/",
     authenticate,
@@ -14,6 +14,13 @@ router.get(
     getUsers
 );
 
-router.post("/", validateBody(createUserSchema), createUser);
+// POST create user - ADMIN Only
+router.post(
+    "/", 
+    authenticate, 
+    authorizeRole(["ADMIN"]), 
+    validateBody(createUserSchema), 
+    createUser
+);
 
 export default router;

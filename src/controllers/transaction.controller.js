@@ -68,14 +68,29 @@ export const getTransactions = async (req, res, next) => {
         limit = Math.min(Number(limit), 50);
 
         const where = {};
+        const authenticatedUserId = req.user.userId;
+        const authenticatedUserRole = req.user.role; // Ambil role dari token
+
+        // Logika KRITIS untuk pencegahan BOLA/Unauthorized Access
+        if (authenticatedUserRole !== "ADMIN") {
+            // Jika BUKAN ADMIN, user hanya boleh melihat transaksinya sendiri
+            where.userId = authenticatedUserId;
+        } else {
+            // Jika ADMIN, izinkan filter dari query parameter userId
+            if (userId) {
+                where.userId = Number(userId);
+            }
+        }
+        
         if (status) where.status = status;
-        if (userId) where.userId = Number(userId);
 
         const totalRecords = await prisma.transaction.count({ where });
         const totalPages = Math.ceil(totalRecords / limit);
 
         const transactions = await prisma.transaction.findMany({
             where,
+            // Tambahkan sorting, misalnya berdasarkan borrowedAt (seperti yang diminta dosen)
+            orderBy: { borrowedAt: 'desc' }, 
             skip: (page - 1) * limit,
             take: limit,
             include: { book: true, user: true },
