@@ -63,34 +63,53 @@ export const returnBook = async (req, res, next) => {
 // Lihat semua transaksi user
 export const getTransactions = async (req, res, next) => {
     try {
-        let { page = 1, limit = 10, userId, status } = req.query;
+        // Tambahkan search, sortBy, order
+        let { page = 1, limit = 10, userId, status, search = "", sortBy = "borrowedAt", order = "desc" } = req.query; 
         page = Number(page);
         limit = Math.min(Number(limit), 50);
 
-        const where = {};
+        // Filter dasar (status dan userId)
+        const baseWhere = {};
         const authenticatedUserId = req.user.userId;
-        const authenticatedUserRole = req.user.role; // Ambil role dari token
+        const authenticatedUserRole = req.user.role; 
 
-        // Logika KRITIS untuk pencegahan BOLA/Unauthorized Access
+        // Logika BOLA (sudah diperbaiki di langkah sebelumnya)
         if (authenticatedUserRole !== "ADMIN") {
-            // Jika BUKAN ADMIN, user hanya boleh melihat transaksinya sendiri
-            where.userId = authenticatedUserId;
+            baseWhere.userId = authenticatedUserId;
         } else {
-            // Jika ADMIN, izinkan filter dari query parameter userId
             if (userId) {
-                where.userId = Number(userId);
+                baseWhere.userId = Number(userId);
             }
         }
         
-        if (status) where.status = status;
+        if (status) baseWhere.status = status;
+
+        // Logika Search
+        const searchWhere = search ? {
+            OR: [
+                // Search berdasarkan Judul Buku
+                { book: { title: { contains: search, mode: "insensitive" } } }, 
+                // Search berdasarkan Nama User
+                { user: { name: { contains: search, mode: "insensitive" } } },
+            ],
+        } : {};
+
+        // Gabungkan semua kondisi where
+        const where = {
+            ...baseWhere,
+            ...searchWhere,
+        };
 
         const totalRecords = await prisma.transaction.count({ where });
         const totalPages = Math.ceil(totalRecords / limit);
+        
+        // Sorting
+        const orderBy = {};
+        orderBy[sortBy] = order;
 
         const transactions = await prisma.transaction.findMany({
             where,
-            // Tambahkan sorting, misalnya berdasarkan borrowedAt (seperti yang diminta dosen)
-            orderBy: { borrowedAt: 'desc' }, 
+            orderBy, // Terapkan sorting
             skip: (page - 1) * limit,
             take: limit,
             include: { book: true, user: true },

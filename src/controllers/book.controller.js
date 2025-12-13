@@ -2,12 +2,14 @@ import prisma from "../config/prisma.js";
 
 export const createBook = async (req, res, next) => {
     try {
-        const { title, author, stock } = req.body;
+        // Ambil authorId, bukan author
+        const { title, authorId, stock } = req.body; 
 
         const book = await prisma.book.create({
             data: {
                 title,
-                author,
+                // Gunakan authorId dan pastikan tipenya Number
+                authorId: Number(authorId), 
                 stock: Number(stock),
             },
         });
@@ -84,15 +86,18 @@ export const getBookById = async (req, res, next) => {
 export const updateBook = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { title, author, stock } = req.body;
+        // Ambil authorId, bukan author
+        const { title, authorId, stock } = req.body; 
+
+        const updateData = {};
+        // Hanya tambahkan field yang ada di body untuk diupdate
+        if (title) updateData.title = title;
+        if (authorId !== undefined) updateData.authorId = Number(authorId); 
+        if (stock !== undefined) updateData.stock = Number(stock); 
 
         const book = await prisma.book.update({
             where: { id: Number(id) },
-            data: {
-                title,
-                author,
-                stock: Number(stock),
-            },
+            data: updateData, // Kirim hanya data yang diubah
         });
 
         res.json({

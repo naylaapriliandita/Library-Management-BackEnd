@@ -16,8 +16,35 @@ export const createAuthor = async (req, res, next) => {
 
 export const getAuthors = async (req, res, next) => {
     try {
-        const authors = await prisma.author.findMany({ include: { books: true } });
-        res.json({ success: true, data: authors });
+        // Tambahkan query params: page, limit, search, sortBy, order
+        let { page = 1, limit = 10, search = "", sortBy = "createdAt", order = "desc" } = req.query; 
+        page = Number(page);
+        limit = Math.min(Number(limit), 50); // Maksimal 50 records per halaman
+
+        const where = search
+            ? {
+                // Search hanya berdasarkan nama penulis (case-insensitive)
+                name: { contains: search, mode: "insensitive" },
+              }
+            : {};
+
+        const totalRecords = await prisma.author.count({ where });
+        const totalPages = Math.ceil(totalRecords / limit);
+
+        const authors = await prisma.author.findMany({
+            where,
+            orderBy: { [sortBy]: order },
+            skip: (page - 1) * limit,
+            take: limit,
+            include: { books: true },
+        });
+
+        res.json({
+            success: true,
+            data: authors,
+            // Tambahkan objek pagination
+            pagination: { totalRecords, totalPages, currentPage: page }, 
+        });
     } catch (err) {
         next(err);
     }
