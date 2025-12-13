@@ -20,8 +20,18 @@ model User {
 model Book {
   id        Int      @id @default(autoincrement())
   title     String
-  author    String
+  authorId  Int?             // nullable sementara
+  author    Author?          @relation(fields: [authorId], references: [id])  // harus nullable juga
   stock     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Author {
+  id        Int     @id @default(autoincrement())
+  name      String
+  bio       String?
+  books     Book[]  // One-to-Many: 1 Author punya banyak Books
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
