@@ -1,29 +1,32 @@
 {
   "name": "library-system",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/naylaapriliandita/Library-Management-BackEnd.git"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/naylaapriliandita/Library-Management-BackEnd/issues"
+  },
+  "homepage": "https://github.com/naylaapriliandita/Library-Management-BackEnd#readme",
   "description": "",
   "dependencies": {
-    "@prisma/client": "^7.1.0",
-    "@prisma/config": "^7.1.0",
-    "bcryptjs": "^3.0.3",
+    "@prisma/client": "^5.19.1",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.3",
-    "express": "^5.2.1",
-    "joi": "^18.0.2",
-    "jsonwebtoken": "^9.0.2",
-    "prisma": "^7.1.0"
+    "express": "^5.2.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
-  },
-  "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
-    "db:migrate": "npx prisma migrate dev",
-    "db:generate": "npx prisma generate",
-    "db:seed": "node prisma/seed.js"
+    "nodemon": "^3.1.11",
+    "prisma": "^5.19.1"
   }
 }
