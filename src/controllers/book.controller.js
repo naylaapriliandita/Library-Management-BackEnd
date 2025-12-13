@@ -58,3 +58,44 @@ export const getBookById = async (req, res, next) => {
         next(err);
     }
 };
+
+export const updateBook = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { title, author, stock } = req.body;
+
+        const book = await prisma.book.update({
+            where: { id: Number(id) },
+            data: {
+                title,
+                author,
+                stock: Number(stock),
+            },
+        });
+
+        res.json({
+            success: true,
+            message: "Buku berhasil diperbarui",
+            data: book,
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const deleteBook = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        await prisma.book.delete({
+            where: { id: Number(id) },
+        });
+
+        res.json({
+            success: true,
+            message: "Buku berhasil dihapus",
+        });
+    } catch (err) {
+        next(err);
+    }
+};
