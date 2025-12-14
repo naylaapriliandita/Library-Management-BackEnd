@@ -2,7 +2,7 @@ import express from "express";
 import { authenticate } from "../middleware/auth.middleware.js";
 import { borrowBook, returnBook, getTransactions } from "../controllers/transaction.controller.js";
 import { borrowSchema } from "../validators/transaction.validator.js";
-import validate from "../middleware/validate.middleware.js";
+import { validateBody } from "../middleware/validate.middleware.js";
 
 const router = express.Router();
 
