@@ -73,7 +73,7 @@ export const getTransactions = async (req, res, next) => {
         const authenticatedUserId = req.user.userId;
         const authenticatedUserRole = req.user.role; 
 
-        // Logika BOLA (sudah diperbaiki di langkah sebelumnya)
+        // Logika BOLA 
         if (authenticatedUserRole !== "ADMIN") {
             baseWhere.userId = authenticatedUserId;
         } else {

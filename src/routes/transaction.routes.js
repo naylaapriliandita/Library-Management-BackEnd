@@ -10,7 +10,7 @@ const router = express.Router();
 router.use(authenticate);
 
 // Pinjam buku
-router.post("/", borrowBook);
+router.post("/", validateBody(borrowSchema), borrowBook);
 
 // Kembalikan buku
 router.put("/:id/return", returnBook);
